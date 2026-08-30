@@ -38,7 +38,9 @@ def load_weather_data(weather_data):
             %(weather_code)s,
             %(observation_time)s,
             %(ingested_at)s
-        );
+        )
+        ON CONFLICT (city, observation_time)
+        DO NOTHING;
     """
 
     with connection:
