@@ -18,14 +18,18 @@ PARAMS = {
 
 
 def extract_weather_data():
-    response = requests.get(API_URL, params=PARAMS, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            API_URL,
+            params=PARAMS,
+            timeout=10,
+        )
 
-    weather_data = response.json()
+        response.raise_for_status()
 
-    return weather_data
+        return response.json()
 
-
-if __name__ == "__main__":
-    data = extract_weather_data()
-    print(data)
+    except requests.exceptions.RequestException as error:
+        raise RuntimeError(
+            f"Weather API request failed: {error}"
+        ) from error
