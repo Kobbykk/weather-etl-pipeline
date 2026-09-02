@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from src.extract import extract_weather_data
+from src.extract import API_URL, PARAMS, extract_weather_data
 
 
 @patch("src.extract.requests.get")
@@ -24,7 +24,13 @@ def test_extract_weather_data_success(mock_get):
 
     result = extract_weather_data()
 
-    mock_get.assert_called_once()
+    mock_get.assert_called_once_with(
+    API_URL,
+    params=PARAMS,
+    timeout=10,
+    )
+
+    fake_response.raise_for_status.assert_called_once()
 
     assert result["latitude"] == 39.96841
     assert result["current"]["temperature_2m"] == 80.0

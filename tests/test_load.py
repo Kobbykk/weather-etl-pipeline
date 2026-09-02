@@ -25,6 +25,14 @@ def test_load_weather_data_success(
     mock_connection.cursor.assert_called_once()
     mock_cursor.execute.assert_called_once()
 
+    execute_args = mock_cursor.execute.call_args
+    sql_query = execute_args.args[0]
+
+    assert "ON CONFLICT" in sql_query
+    assert "DO NOTHING" in sql_query
+
+    assert execute_args.args[1] == valid_weather_data
+
 
 @patch("src.load.psycopg.connect")
 def test_load_weather_data_database_failure(
