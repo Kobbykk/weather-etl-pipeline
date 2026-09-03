@@ -10,6 +10,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d data_engineering"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   etl:
     build: .
@@ -20,7 +25,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
