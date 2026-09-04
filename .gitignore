@@ -25,4 +25,13 @@ data/
 
 # Operating system files
 .DS_Store
-Thumbs.db.pytest_cache/
+Thumbs.db
+
+# Pytest cache
+.pytest_cache/
+
+
+# Airflow generated files
+airflow-logs/
+plugins/
+airflow-config/

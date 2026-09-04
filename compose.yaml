@@ -1,3 +1,32 @@
+x-airflow-common:
+  &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile.airflow
+  environment:
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/simple_auth_manager_passwords.json
+
+
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_NAME: data_engineering
+    DB_USER: postgres
+    DB_PASSWORD: ${DB_PASSWORD}
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./airflow-logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./src:/opt/airflow/src:ro
+    - ./airflow-config:/opt/airflow/config
+  depends_on:
+    airflow-db:
+      condition: service_healthy
+
 services:
   postgres:
     image: postgres:18
@@ -16,6 +45,20 @@ services:
       timeout: 5s
       retries: 5
 
+  airflow-db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+    volumes:
+      - airflow_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   etl:
     build: .
     environment:
@@ -28,5 +71,24 @@ services:
       postgres:
         condition: service_healthy
 
+  airflow-init:
+    <<: *airflow-common
+    command: db migrate
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+
+  airflow-api-server:
+    <<: *airflow-common
+    command: api-server
+    ports:
+      - "8080:8080"
+
 volumes:
   postgres_data:
+  airflow_db_data:
