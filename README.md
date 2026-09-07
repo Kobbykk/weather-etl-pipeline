@@ -18,6 +18,8 @@ The pipeline:
 
 ## Architecture
 
+![Weather ETL Architecture](assets/architecture/weather-etl-architecture.png)
+
 ```text
 Open-Meteo API
       |
