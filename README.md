@@ -39,6 +39,20 @@ Docker Compose -> Multi-container runtime
 Developer -> Git -> GitHub -> GitHub Actions -> pytest
 ```
 
+## Pipeline in Action
+
+### Airflow DAG Execution
+
+The `weather_etl_pipeline` DAG is orchestrated by Apache Airflow and scheduled to run every 30 minutes.
+
+![Airflow DAG Success](assets/screenshots/airflow-dag-success.png)
+
+### GitHub Actions CI
+
+GitHub Actions automatically runs the pytest suite on pushes and pull requests targeting `main`.
+
+![GitHub Actions CI Success](assets/screenshots/github-actions-ci-success.png)
+
 ## Technology Stack
 
 | Technology | Purpose |
